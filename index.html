@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Business Model Canvas — לוח שיתופי</title>
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
@@ -869,112 +870,82 @@ document.addEventListener('keydown', e => {
 });
 
 /* ══════════════════════════════════════════════════════════════
-   P2P COLLABORATION (PeerJS)
+   REALTIME COLLABORATION (Firebase)
 ══════════════════════════════════════════════════════════════ */
-let peer      = null;
-let hostConn  = null;
-let guests    = [];
-let amHost    = false;
-let roomId    = null;
+
+// ── הדבק כאן את ה-config מ-Firebase Console ──
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyCLx9wT4PYTUvclt4vUi7oVSEq3-EQN-pg",
+  authDomain:        "bmc-canvas-95d38.firebaseapp.com",
+  databaseURL:       "https://bmc-canvas-95d38-default-rtdb.firebaseio.com",
+  projectId:         "bmc-canvas-95d38",
+  storageBucket:     "bmc-canvas-95d38.firebasestorage.app",
+  messagingSenderId: "415402661422",
+  appId:             "1:415402661422:web:bad66d2defb97498b231bf"
+};
+
+let amHost = false;
+let roomId = null;
+let db     = null;
 
 function getRoomFromURL() { return location.hash ? location.hash.slice(1) : null; }
 
-function initP2P() {
+function initFirebase() {
+  firebase.initializeApp(FIREBASE_CONFIG);
+  db = firebase.database();
+
   const urlRoom = getRoomFromURL();
 
   if (!urlRoom) {
     // ── HOST ──
     amHost = true;
     document.getElementById('hdr-actions').style.display = '';
-    peer = new Peer(undefined, { debug: 0 });
-
-    peer.on('open', id => {
-      roomId = id;
-      location.hash = id;
-      setUI('online', `חדר פתוח`, 1);
-    });
-
-    peer.on('connection', conn => {
-      guests.push(conn);
-
-      conn.on('open', () => {
-        setUI('online', 'חדר פתוח', guests.length + 1);
-        conn.send({ type:'SYNC', notes });
-      });
-
-      conn.on('data', msg => {
-        applyMsg(msg);
-        // relay to other guests
-        guests.filter(c => c !== conn && c.open).forEach(c => c.send(msg));
-      });
-
-      conn.on('close', () => {
-        guests = guests.filter(c => c !== conn);
-        setUI('online', 'חדר פתוח', guests.length + 1);
-      });
-    });
-
-    peer.on('error', () => setUI('', 'מצב מקומי', null));
-
+    roomId = uid();
+    location.hash = roomId;
   } else {
     // ── GUEST ──
     amHost = false;
     roomId = urlRoom;
-    peer = new Peer(undefined, { debug: 0 });
-
-    peer.on('open', () => {
-      setUI('connecting', 'מתחבר...', null);
-      hostConn = peer.connect(urlRoom, { reliable: true });
-
-      hostConn.on('open', () => {
-        setUI('online', 'מחובר ✓', null);
-        hostConn.send({ type:'HELLO', name: myName });
-      });
-
-      hostConn.on('data', msg => applyMsg(msg));
-
-      hostConn.on('close', () => setUI('', 'מנותק', null));
-      hostConn.on('error', () => setUI('', 'שגיאת חיבור', null));
-    });
-
-    peer.on('error', () => setUI('', 'שגיאת חיבור', null));
+    setUI('connecting', 'מתחבר...', null);
   }
-}
 
-function applyMsg(msg) {
-  switch (msg.type) {
-    case 'SYNC':
-      notes = msg.notes;
-      persist(); renderNotes();
-      break;
-    case 'ADD':
-      if (!notes.find(n => n.id === msg.note.id)) {
-        notes.push(msg.note); persist(); renderNotes();
-      }
-      break;
-    case 'UPD': {
-      const i = notes.findIndex(n => n.id === msg.note.id);
-      if (i !== -1) { notes[i] = msg.note; persist(); renderNotes(); }
-      break;
-    }
-    case 'DEL':
-      notes = notes.filter(n => n.id !== msg.id);
-      persist(); renderNotes();
-      break;
-    case 'CLEAR':
-      notes = []; persist(); renderNotes();
-      break;
-    case 'WIND':
+  const room = db.ref(`rooms/${roomId}`);
+
+  // ── Sync notes in real-time ──
+  room.child('notes').on('value', snap => {
+    notes = snap.val() ? Object.values(snap.val()) : [];
+    persist();
+    renderNotes();
+    setUI('online', amHost ? 'חדר פתוח' : 'מחובר ✓', null);
+  });
+
+  // ── Participant presence & count ──
+  const myPresence = room.child(`presence/${uid()}`);
+  myPresence.set(true);
+  myPresence.onDisconnect().remove();
+  room.child('presence').on('value', snap => {
+    const count = snap.val() ? Object.keys(snap.val()).length : 1;
+    setUI('online', amHost ? 'חדר פתוח' : 'מחובר ✓', count);
+  });
+
+  // ── Wind sync ──
+  room.child('wind').on('value', snap => {
+    if (snap.val()) {
       triggerWind(true);
-      break;
-  }
+      room.child('wind').remove();
+    }
+  });
 }
 
 function emit(msg) {
-  if (amHost) {
-    guests.filter(c => c.open).forEach(c => c.send(msg));
-  } else if (hostConn && hostConn.open) {
-    hostConn.send(msg);
+  if (!db || !roomId) return;
+  const room = db.ref(`rooms/${roomId}`);
+  switch (msg.type) {
+    case 'ADD':
+    case 'UPD':  room.child(`notes/${msg.note.id}`).set(msg.note); break;
+    case 'DEL':  room.child(`notes/${msg.id}`).remove(); break;
+    case 'CLEAR': room.child('notes').remove(); break;
+    case 'WIND':  room.child('wind').set(Date.now()); break;
   }
 }
 
@@ -1131,7 +1102,7 @@ function toast(msg) {
    INIT
 ══════════════════════════════════════════════════════════════ */
 buildGrid();
-initP2P();
+initFirebase();
 </script>
 </body>
 </html>
