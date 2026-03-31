@@ -1,0 +1,33 @@
+[
+  {
+    "email": "adi@a-zed.co.il",
+    "filename": "1774773350723-476093709.jpg",
+    "timestamp": "2026-03-29T12:40:22.192Z",
+    "feedback": {
+      "composition": {
+        "agreed": null,
+        "note": ""
+      },
+      "angle": {
+        "agreed": null,
+        "note": ""
+      },
+      "distance": {
+        "agreed": null,
+        "note": ""
+      },
+      "lighting": {
+        "agreed": null,
+        "note": ""
+      },
+      "focus": {
+        "agreed": null,
+        "note": ""
+      },
+      "details": {
+        "agreed": null,
+        "note": ""
+      }
+    }
+  }
+]

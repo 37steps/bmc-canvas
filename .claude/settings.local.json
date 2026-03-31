@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/tmp/bmc_launcher.applescript:*)",
+      "Bash(osacompile -o \"/Users/adiasher/Documents/challenge/BMC Canvas.app\" /tmp/bmc_launcher.applescript)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(gh repo:*)",
+      "Bash(git --version)",
+      "Bash(curl -sL https://github.com/cli/cli/releases/download/v2.63.2/gh_2.63.2_macOS_arm64.tar.gz -o /tmp/gh.tar.gz)",
+      "Bash(tar -xzf /tmp/gh.tar.gz -C /tmp)",
+      "Bash(mkdir -p ~/bin)",
+      "Bash(cp /tmp/gh_2.63.2_macOS_arm64/bin/gh ~/bin/gh)",
+      "Bash(chmod +x ~/bin/gh)",
+      "Bash(~/bin/gh --version)",
+      "Bash(curl -sIL https://github.com/cli/cli/releases/download/v2.63.2/gh_2.63.2_macOS_arm64.tar.gz)",
+      "Bash(curl -sL \"https://api.github.com/repos/cli/cli/releases/latest\")",
+      "Bash(python3 -c \"import sys,json; r=json.load\\(sys.stdin\\); print\\(r[''''tag_name'''']\\); [print\\(a[''''browser_download_url'''']\\) for a in r[''''assets'''']]\")"
+    ]
+  }
+}
