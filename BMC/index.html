@@ -6,7 +6,6 @@
 <title>Business Model Canvas — לוח שיתופי</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
@@ -638,7 +637,7 @@ const BLOCKS = [
   { key:'resources',     he:'משאבים מרכזיים',  en:'Key Resources',          icon:'🔩', css:'b-resources',     hint:'מה יש לנו?'              },
   { key:'value',         he:'הצעת ערך',         en:'Value Propositions',     icon:'💎', css:'b-value',         hint:'מה אנחנו מציעים?'        },
   { key:'relationships', he:'קשרי לקוחות',      en:'Customer Relationships', icon:'💬', css:'b-relationships', hint:'איך מתקשרים עם לקוחות?'  },
-  { key:'channels',      he:'ערוצי הפצה',       en:'Channels',               icon:'📡', css:'b-channels',      hint:'דרך מה מגיעים ללקוחות?' },
+  { key:'channels',      he:'צינורות',       en:'Channels',               icon:'📡', css:'b-channels',      hint:'דרך מה מגיעים ללקוחות?' },
   { key:'segments',      he:'מקבלי ערך',        en:'Customer Segments',      icon:'👥', css:'b-segments',      hint:'מי מקבלי הערך שלנו?'     },
   { key:'costs',         he:'מבנה עלויות',      en:'Cost Structure',         icon:'💸', css:'b-costs',         hint:'מה עולה לנו?'            },
   { key:'revenue',       he:'מודל עסקי',         en:'Revenue Streams',        icon:'💰', css:'b-revenue',       hint:'מה המודל העסקי שלנו?'    },
@@ -895,16 +894,6 @@ function initFirebase() {
   firebase.initializeApp(FIREBASE_CONFIG);
   db = firebase.database();
 
-  // Sign in anonymously so Security Rules (auth != null) are satisfied
-  firebase.auth().signInAnonymously()
-    .then(() => setupRoom())
-    .catch(err => {
-      console.error('Firebase auth error:', err);
-      setUI('', 'שגיאת חיבור', null);
-    });
-}
-
-function setupRoom() {
   const urlRoom = getRoomFromURL();
 
   if (!urlRoom) {
@@ -931,8 +920,7 @@ function setupRoom() {
   });
 
   // ── Participant presence & count ──
-  const authUid = firebase.auth().currentUser?.uid || uid();
-  const myPresence = room.child(`presence/${authUid}`);
+  const myPresence = room.child(`presence/${uid()}`);
   myPresence.set(true);
   myPresence.onDisconnect().remove();
   room.child('presence').on('value', snap => {
