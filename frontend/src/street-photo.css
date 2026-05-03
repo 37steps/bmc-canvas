@@ -1,0 +1,114 @@
+/* Modern street photographer style */
+body {
+  background: linear-gradient(135deg, #18181a 60%, #23232b 100%);
+  color: #f3f3f3;
+  font-family: 'Heebo', 'Rubik', 'Inter', Arial, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+}
+nav {
+  background: #18181aee;
+  border-bottom: 1.5px solid #333;
+  padding: 1.2rem 0 1.2rem 0;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 16px #0005;
+}
+nav a {
+  color: #ffb347;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.15rem;
+  margin: 0 1.5rem;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+nav a:hover {
+  color: #a7e0ff;
+}
+.page {
+  max-width: 480px;
+  margin: 2.5rem auto;
+  background: #23232b;
+  border-radius: 22px;
+  box-shadow: 0 6px 36px #0008;
+  padding: 2.7rem 2.2rem 2.2rem 2.2rem;
+  text-align: center;
+}
+h2 {
+  font-family: 'Rubik', 'Heebo', Arial, sans-serif;
+  font-size: 2.2rem;
+  margin-bottom: 1.3rem;
+  color: #ffb347;
+  letter-spacing: 0.05em;
+  text-shadow: 0 2px 8px #0007;
+}
+label {
+  display: block;
+  margin-bottom: 1.2rem;
+  text-align: right;
+  font-size: 1.08rem;
+}
+input[type="email"], input[type="password"], input[type="file"] {
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 10px;
+  border: 1.5px solid #444;
+  background: #18181a;
+  color: #f3f3f3;
+  font-size: 1.08rem;
+  margin-top: 0.3rem;
+  margin-bottom: 0.5rem;
+  transition: border 0.2s;
+}
+input:focus {
+  border: 1.5px solid #ffb347;
+  outline: none;
+}
+button {
+  background: linear-gradient(90deg, #ffb347 0%, #ffcc80 100%);
+  color: #23232b;
+  border: none;
+  border-radius: 10px;
+  padding: 0.8rem 2.5rem;
+  font-size: 1.13rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 0.7rem;
+  transition: background 0.2s, color 0.2s;
+  box-shadow: 0 2px 8px #0004;
+}
+button:hover {
+  background: linear-gradient(90deg, #a7e0ff 0%, #ffb347 100%);
+  color: #18181a;
+}
+p {
+  color: #a7e0ff;
+  font-size: 1.13rem;
+}
+pre {
+  background: #18181a;
+  color: #ffb347;
+  border-radius: 10px;
+  padding: 1rem;
+  font-size: 1.05rem;
+  overflow-x: auto;
+}
+svg {
+  border-radius: 12px;
+}
+img[alt="תמונה מנותחת"] {
+  border-radius: 12px;
+  box-shadow: 0 2px 16px #0007;
+  border: 2px solid #444;
+}
+.annotation-label {
+  font-size: 1.05rem;
+  color: #ffb347;
+  background: #23232bcc;
+  border-radius: 6px;
+  padding: 2px 8px;
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  box-shadow: 0 1px 4px #0006;
+}
